@@ -1,12 +1,15 @@
 from machine import Pin
 from time import sleep, time
 
-focus_relay = Pin(15, Pin.OUT)
-shutter_relay = Pin(14, Pin.OUT)
+FOCUS_RELAY = Pin(15, Pin.OUT)
+SHUTTER_RELAY = Pin(14, Pin.OUT)
+
+# Need to add LDR to measure on-camera SD writing LED
+LDR = ADC(27)
 
 # Using an LED as shutter open or closed
-led = Pin(13, Pin.OUT)
-led.value(0)
+LED = Pin(13, Pin.OUT)
+LED.value(0)
 
 setting_up = True
 
@@ -27,11 +30,15 @@ def get_exposure_settings():
     return exposure_time, how_many
 
 def remote_release():
-    focus_relay.value(1)
-    shutter_relay.value(1)
+    FOCUS_RELAY.value(1)
+    SHUTTER_RELAY.value(1)
     sleep(0.25)
-    focus_relay.value(0)
-    shutter_relay.value(0)
+    FOCUS_RELAY.value(0)
+    SHUTTER_RELAY.value(0)
+
+def SD_write_finished():
+    ldr_value = LDR.read_u16()
+    return ldr_value
 
 while True:
     if setting_up:
@@ -43,13 +50,16 @@ while True:
         print("Started exposure")
         exposure = True
         counted_exposures += 1
-        led.value(not led.value())
+        LED.value(not LED.value())
         remote_release()
         
     if exposure == True and ((time() - start_time) >= exposure_length_seconds):
         remote_release()
-        led.value(not led.value())
+        LED.value(not LED.value())
         print("Ended exposure")
+        # What is the value for the LED on camera to be lit?
+        # while ldr_value < 50:
+        #    ldr_value = SD_write_finished()
         sleep(sdCard_write_time)
         exposure = False
         
@@ -58,13 +68,7 @@ while True:
         counted_exposures = 0
         print("Reset for next exposure")
         
-    #print(f"Setting Up: {setting_up}, Exposure: {exposure}")
-        
-    """
-    else:
-        make_exposures(exposure_length_seconds, number_of_exposures)
-        setting_up = True
-    """
+
     
 
 
