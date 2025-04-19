@@ -33,20 +33,6 @@ def remote_release():
     focus_relay.value(0)
     shutter_relay.value(0)
 
-def make_exposures(exposure_length_seconds, number_of_exposures):
-    # Start exposure, wait exposure length
-    # Stop exposure, wait for image to write to memory
-    for exposures in range(number_of_exposures):
-        remote_release()               # exposure start
-        led.value(1)
-        sleep(exposure_length_seconds)
-        remote_release()               # exposure stop
-        led.value(0)
-        sleep(sdCard_write_time)
-    
-
-
-
 while True:
     if setting_up:
         exposure_length_seconds, number_of_exposures = get_exposure_settings()
