@@ -1,4 +1,4 @@
-from machine import Pin
+from machine import Pin, ADC
 from time import sleep, time
 
 FOCUS_RELAY = Pin(15, Pin.OUT)
@@ -32,9 +32,10 @@ def get_exposure_settings():
 def remote_release():
     FOCUS_RELAY.value(1)
     SHUTTER_RELAY.value(1)
-    sleep(0.25)
-    FOCUS_RELAY.value(0)
+    sleep(0.1)
     SHUTTER_RELAY.value(0)
+    FOCUS_RELAY.value(0)
+    
 
 def SD_write_finished():
     ldr_value = LDR.read_u16()
