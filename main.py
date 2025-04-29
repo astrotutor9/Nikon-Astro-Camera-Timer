@@ -1,11 +1,8 @@
-from machine import Pin, ADC
+from machine import Pin
 from time import sleep, time
 
 FOCUS_RELAY = Pin(15, Pin.OUT)
 SHUTTER_RELAY = Pin(14, Pin.OUT)
-
-# Need to add LDR to measure on-camera SD writing LED
-LDR = ADC(27)
 
 # Using an LED as shutter open or closed
 LED = Pin(13, Pin.OUT)
@@ -22,7 +19,7 @@ time_now = 0
 
 # This needs to be verified on camera
 # Length may change in relation to exposure length
-sdCard_write_time = 2
+sdCard_write_time = 1
 
 def get_exposure_settings():
     exposure_time = int(input("What is the exposure time in seconds? "))
@@ -35,11 +32,9 @@ def remote_release():
     sleep(0.1)
     SHUTTER_RELAY.value(0)
     FOCUS_RELAY.value(0)
-    
 
-def SD_write_finished():
-    ldr_value = LDR.read_u16()
-    return ldr_value
+SHUTTER_RELAY.value(0)
+FOCUS_RELAY.value(0)
 
 while True:
     if setting_up:
@@ -58,10 +53,7 @@ while True:
         remote_release()
         LED.value(not LED.value())
         print("Ended exposure")
-        # What is the value for the LED on camera to be lit?
-        # while ldr_value < 50:
-        #    ldr_value = SD_write_finished()
-        sleep(sdCard_write_time)
+        sleep(sdCard_write_time)        
         exposure = False
         
     if counted_exposures == number_of_exposures and exposure == False:
