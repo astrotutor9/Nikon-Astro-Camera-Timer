@@ -8,6 +8,7 @@
 body { background-color: black; color: red; text-align: center; }
 .arrow { font-size: 80px; cursor: pointer; user-select: none; }
 .value { font-size: 50px; }
+button { font-size: 30px; margin-top: 20px; color: black; background-color: red; }
 </style>
 </head>
 <body>
@@ -30,12 +31,14 @@ body { background-color: black; color: red; text-align: center; }
 </form>
 <script>
 function update(id, change) {
-  const min = {{'time':5,'number':1}}[id];
-  const max = {{'time':300,'number':100}}[id];
-  let val = parseInt(document.getElementById(id).innerText);
-  val = Math.min(max, Math.max(min, val + change));
-  document.getElementById(id).innerText = val;
-  document.getElementById(id + '_input').value = val;
+  const limits = {'time': [5, 300], 'number': [1, 100]};
+  let valElement = document.getElementById(id);
+  let inputElement = document.getElementById(id + '_input');
+  let val = parseInt(valElement.textContent);
+  if (isNaN(val)) val = limits[id][0];
+  val = Math.min(limits[id][1], Math.max(limits[id][0], val + change));
+  valElement.textContent = val;
+  inputElement.value = val;
 }
 </script>
 </body>
