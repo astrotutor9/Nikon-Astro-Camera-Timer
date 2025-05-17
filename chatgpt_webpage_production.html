@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Pico Control</title>
+<style>
+body { background-color: black; color: red; text-align: center; }
+.arrow { font-size: 80px; cursor: pointer; user-select: none; }
+.value { font-size: 50px; }
+</style>
+</head>
+<body>
+<form method='POST'>
+  <div>
+    <span class='arrow' onclick='update("time", 1)'>&#9650;</span>
+    <div class='value' id='time'>{exposure_time}</div>
+    <span class='arrow' onclick='update("time", -1)'>&#9660;</span>
+    <input type='hidden' name='exposure_time' id='time_input' value='{exposure_time}'/>
+    <p>Time</p>
+  </div>
+  <div>
+    <span class='arrow' onclick='update("number", 1)'>&#9650;</span>
+    <div class='value' id='number'>{how_many}</div>
+    <span class='arrow' onclick='update("number", -1)'>&#9660;</span>
+    <input type='hidden' name='how_many' id='number_input' value='{how_many}'/>
+    <p>Number</p>
+  </div>
+  <button type='submit'>Submit</button>
+</form>
+<script>
+function update(id, change) {
+  const min = {{'time':5,'number':1}}[id];
+  const max = {{'time':300,'number':100}}[id];
+  let val = parseInt(document.getElementById(id).innerText);
+  val = Math.min(max, Math.max(min, val + change));
+  document.getElementById(id).innerText = val;
+  document.getElementById(id + '_input').value = val;
+}
+</script>
+</body>
+</html>
