@@ -10,6 +10,11 @@ ap = network.WLAN(network.AP_IF)
 ap.config(essid=ssid, password=password)
 ap.active(True)
 
+while ap.active() == False:
+  pass
+print('Connection is successful')
+print(ap.ifconfig())
+
 # Simple HTTP response header
 def response_header():
     return 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
@@ -24,10 +29,12 @@ def webpage(exposure_time=5, how_many=5):
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <title>Pico Control</title>
 <style>
+
 body {{ background-color: black; color: red; text-align: center; }}
 .arrow {{ font-size: 80px; cursor: pointer; user-select: none; }}
 .value {{ font-size: 50px; }}
-button {{ font-size: 30px; margin-top: 20px; }}
+button {{ font-size: 30px; margin-top: 20px; color: black; background-color: red; }}
+p {{ font-size: 40px  }}
 </style>
 </head>
 <body>
@@ -50,7 +57,7 @@ button {{ font-size: 30px; margin-top: 20px; }}
 </form>
 <script>
 function update(id, change) {{
-  const limits = {{'time': [5, 300], 'number': [1, 100]}};
+  const limits = {'time': [5, 300], 'number': [1, 100]};
   let valElement = document.getElementById(id);
   let inputElement = document.getElementById(id + '_input');
   let val = parseInt(valElement.textContent);
@@ -72,26 +79,35 @@ s = socket.socket()
 s.bind(addr)
 s.listen(1)
 
+
+
 print('Server running at:', ap.ifconfig()[0])
+
+# Server loop
+exposure_time, how_many = 5, 30
+
 
 # Server loop
 exposure_time, how_many = 5, 5
 
 while True:
-    cl, addr = s.accept()
-    request = cl.recv(1024).decode()
+    try:
+        cl, addr = s.accept()
+        request = cl.recv(1024).decode('utf-8')
 
-    if 'POST' in request:
-        exposure_match = ure.search(r"exposure_time=(\d+)", request)
-        number_match = ure.search(r"how_many=(\d+)", request)
+        if 'POST' in request:
+            exposure_match = ure.search(r"exposure_time=(\d+)", request)
+            number_match = ure.search(r"how_many=(\d+)", request)
 
+            if exposure_match and number_match:
+                exposure_time = int(exposure_match.group(1))
+                how_many = int(number_match.group(1))
+                print('Received: exposure_time={}, how_many={}'.format(exposure_time, how_many))
 
+        response = response_header() + webpage(exposure_time, how_many)
+        cl.sendall(response.encode('utf-8'))
+        cl.close()
 
-        if exposure_match and number_match:
-            exposure_time = int(exposure_match.group(1))
-            how_many = int(number_match.group(1))
-            print(f'Received: exposure_time={exposure_time}, how_many={how_many}')
-
-    cl.send(response_header())
-    cl.send(webpage(exposure_time, how_many))
-    cl.close()
+    except Exception as e:
+        print('Error:', e)
+        cl.close()
