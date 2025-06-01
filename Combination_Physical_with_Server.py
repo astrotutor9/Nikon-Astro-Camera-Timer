@@ -15,16 +15,23 @@ ap.active(True)
 # Relay (camera trigger) setup
 FOCUS_RELAY = Pin(15, Pin.OUT)
 SHUTTER_RELAY = Pin(14, Pin.OUT)
-LED = Pin(13, Pin.OUT)
-LED.value(0)
+redLED = Pin(13, Pin.OUT)
+greenLED = Pin(12, Pin.OUT)
+redLED.value(0)
+
+# Simple LED to inform unit powered up
+greenLED.value(1)
+
+FOCUS_RELAY.value(1)
+SHUTTER_RELAY.value(1)
 
 # Camera control function
 def remote_release():
-    FOCUS_RELAY.value(1)
-    SHUTTER_RELAY.value(1)
-    utime.sleep_ms(200)
-    SHUTTER_RELAY.value(0)
     FOCUS_RELAY.value(0)
+    SHUTTER_RELAY.value(0)
+    utime.sleep_ms(200)
+    SHUTTER_RELAY.value(1)
+    FOCUS_RELAY.value(1)
 
 sd_card_write_time = 1000  # milliseconds between exposures
 
@@ -110,15 +117,16 @@ while True:
                 print('Starting: exposure_time={}, how_many={}'.format(exposure_time, how_many))
 
                 for count in range(how_many):
-                    LED.value(1)
+                    redLED.value(1)
                     remote_release()
                     start = utime.ticks_ms()
 
                     while utime.ticks_diff(utime.ticks_ms(), start) < (exposure_time * 1000):
+                        #redLED.value(1)
                         pass
 
                     remote_release()
-                    LED.value(0)
+                    redLED.value(0)
                     print('Exposure {} complete.'.format(count + 1))
 
                     if count < how_many - 1:
