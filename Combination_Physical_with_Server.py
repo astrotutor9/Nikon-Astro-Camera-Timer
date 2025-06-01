@@ -1,10 +1,10 @@
-from machine import Pin
-from time import sleep, time
 import network
 import socket
 import ure
+import utime
+from machine import Pin
 
-# Set up Pico Wi-Fi Access Point
+# Wi-Fi Access Point setup
 ssid = 'Pico-AP'
 password = '12345678'
 
@@ -12,42 +12,27 @@ ap = network.WLAN(network.AP_IF)
 ap.config(essid=ssid, password=password)
 ap.active(True)
 
-while ap.active() == False:
-  pass
-print('Connection is successful')
-print(ap.ifconfig())
-
-# Set up connections for camera remote wiring
+# Relay (camera trigger) setup
 FOCUS_RELAY = Pin(15, Pin.OUT)
 SHUTTER_RELAY = Pin(14, Pin.OUT)
-
-# Using an LED as shutter open or closed
 LED = Pin(13, Pin.OUT)
 LED.value(0)
 
-# Not making exposures if True
-setting_up = True
+# Camera control function
+def remote_release():
+    FOCUS_RELAY.value(1)
+    SHUTTER_RELAY.value(1)
+    utime.sleep_ms(200)
+    SHUTTER_RELAY.value(0)
+    FOCUS_RELAY.value(0)
 
-exposure_length_seconds = 0
-number_of_exposures = 0
-counted_exposures = 0
-exposure = False
+sd_card_write_time = 1000  # milliseconds between exposures
 
-time_now = 0
-
-# This needs to be verified on camera
-# Length may change in relation to exposure length
-sdCard_write_time = 1
-
-##################################################
-# Functions
-##################################################
-
-# Simple HTTP response header
+# HTTP response header
 def response_header():
     return 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
 
-# HTML/CSS webpage
+# HTML webpage
 def webpage(exposure_time=5, how_many=5):
     html = f"""
 <!DOCTYPE html>
@@ -61,7 +46,6 @@ body {{ background-color: black; color: red; text-align: center; }}
 .arrow {{ font-size: 80px; cursor: pointer; user-select: none; }}
 .value {{ font-size: 50px; }}
 button {{ font-size: 30px; margin-top: 20px; color: black; background-color: red; }}
-p {{ font-size: 40px; margin-top: 0px; margin-bottom: 0px; }}
 </style>
 </head>
 <body>
@@ -99,23 +83,7 @@ function update(id, change) {{
 """
     return html
 
-def get_exposure_settings():
-    exposure_time = int(input("What is the exposure time in seconds? "))
-    how_many = int(input("How many images? "))
-    return exposure_time, how_many
-
-def remote_release():
-    FOCUS_RELAY.value(1)
-    SHUTTER_RELAY.value(1)
-    sleep(0.1)
-    SHUTTER_RELAY.value(0)
-    FOCUS_RELAY.value(0)
-
-# Ensure relays are open at the start
-SHUTTER_RELAY.value(0)
-FOCUS_RELAY.value(0)
-
-# Start simple HTTP server
+# HTTP server setup
 addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 s = socket.socket()
 s.bind(addr)
@@ -123,9 +91,10 @@ s.listen(1)
 
 print('Server running at:', ap.ifconfig()[0])
 
-# Server loop
+# Initialize variables
 exposure_time, how_many = 5, 5
 
+# Main loop
 while True:
     try:
         cl, addr = s.accept()
@@ -138,60 +107,27 @@ while True:
             if exposure_match and number_match:
                 exposure_time = int(exposure_match.group(1))
                 how_many = int(number_match.group(1))
-                print('Received: exposure_time={}, how_many={}'.format(exposure_time, how_many))
+                print('Starting: exposure_time={}, how_many={}'.format(exposure_time, how_many))
+
+                for count in range(how_many):
+                    LED.value(1)
+                    remote_release()
+                    start = utime.ticks_ms()
+
+                    while utime.ticks_diff(utime.ticks_ms(), start) < (exposure_time * 1000):
+                        pass
+
+                    remote_release()
+                    LED.value(0)
+                    print('Exposure {} complete.'.format(count + 1))
+
+                    if count < how_many - 1:
+                        utime.sleep_ms(sd_card_write_time)
 
         response = response_header() + webpage(exposure_time, how_many)
         cl.sendall(response.encode('utf-8'))
         cl.close()
-        
-    
-        # NOT SURE HOW THIS WORKS, IF IT IS LOOPING THRU IT AT ALL
-        if exposure == False and (counted_exposures < how_many):
-            start_time = time()
-            print("Started exposure")
-            exposure = True
-            counted_exposures += 1
-            LED.value(not LED.value())
-            remote_release()
-        
-        if exposure == True and ((time() - start_time) >= exposure_time):
-            remote_release()
-            LED.value(not LED.value())
-            print("Ended exposure")
-            sleep(sdCard_write_time)        
-            exposure = False
-            
-        if counted_exposures == how_many and exposure == False:
-            setting_up = True
-            counted_exposures = 0
-            print("Reset for next exposure")
-    
+
     except Exception as e:
         print('Error:', e)
         cl.close()
-    """
-    
-    if setting_up:
-        exposure_length_seconds, number_of_exposures = get_exposure_settings()
-        setting_up = False
-        
-    if exposure == False and (counted_exposures < number_of_exposures):
-        start_time = time()
-        print("Started exposure")
-        exposure = True
-        counted_exposures += 1
-        LED.value(not LED.value())
-        remote_release()
-        
-    if exposure == True and ((time() - start_time) >= exposure_length_seconds):
-        remote_release()
-        LED.value(not LED.value())
-        print("Ended exposure")
-        sleep(sdCard_write_time)        
-        exposure = False
-        
-    if counted_exposures == number_of_exposures and exposure == False:
-        setting_up = True
-        counted_exposures = 0
-        print("Reset for next exposure")
-     """   
