@@ -5,7 +5,7 @@ import utime
 from machine import Pin
 
 # Wi-Fi Access Point setup
-ssid = 'Pico-AP'
+ssid = 'Camera_Remote'
 password = '12345678'
 
 ap = network.WLAN(network.AP_IF)

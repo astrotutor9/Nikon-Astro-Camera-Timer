@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Pico Control</title>
+<style>
+  body { background-color: black; color: red; text-align: center; }
+  form { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .arrow { font-size: 80px; cursor: pointer; user-select: none; line-height: 1; }
+  .value { font-size: 50px; }
+  button { font-size: 30px; margin-top: 0; color: black; background-color: red; border: none; padding: 8px 20px; cursor: pointer; }
+  p { font-size: 40px; margin: 0; }
+  /* Layout */
+  .controls { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; align-items: center; justify-items: center; }
+  .control { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  /* Ensure labels are in same columns as controls */
+  .labels { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; justify-items: center; }
+  /* Spacing helpers so Cancel is at top and Submit at bottom */
+  .top-actions, .bottom-actions { width: 100%; display: flex; justify-content: center; }
+</style>
+</head>
+<body>
+<form method='POST'>
+  <!-- Top action -->
+  <div class='top-actions'>
+    <button type='submit' name='action' value='cancel'>Cancel</button>
+  </div>
+
+  <!-- Labels row above arrows -->
+  <div class='labels'>
+    <p>Time</p>
+    <p>Number</p>
+  </div>
+
+  <!-- Two side-by-side selectors -->
+  <div class='controls'>
+    <!-- Exposure time column -->
+    <div class='control'>
+      <span class='arrow' onclick='update("time", 1)'>&#9650;</span>
+      <div class='value' id='time'>{exposure_time}</div>
+      <span class='arrow' onclick='update("time", -1)'>&#9660;</span>
+      <input type='hidden' name='exposure_time' id='time_input' value='{exposure_time}'/>
+    </div>
+
+    <!-- Number of exposures column -->
+    <div class='control'>
+      <span class='arrow' onclick='update("number", 1)'>&#9650;</span>
+      <div class='value' id='number'>{how_many}</div>
+      <span class='arrow' onclick='update("number", -1)'>&#9660;</span>
+      <input type='hidden' name='how_many' id='number_input' value='{how_many}'/>
+    </div>
+  </div>
+
+  <!-- Bottom action -->
+  <div class='bottom-actions'>
+    <button type='submit'>Submit</button>
+  </div>
+</form>
+
+<script>
+function update(id, change) {
+  const limits = {'time': [5, 300], 'number': [1, 100]};
+  let valElement = document.getElementById(id);
+  let inputElement = document.getElementById(id + '_input');
+  let val = parseInt(valElement.textContent);
+  if (isNaN(val)) val = limits[id][0];
+  val = Math.min(limits[id][1], Math.max(limits[id][0], val + change));
+  valElement.textContent = val;
+  inputElement.value = val;
+}
+</script>
+</body>
+</html>
