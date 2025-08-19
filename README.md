@@ -24,6 +24,8 @@ whilst the read/write process is in operation might sort this.
 ## Completed
 The LDR was not required as the camera resets to be able to take images almost immediately whilst still saving the previous image. A pause of 100 milliseconds is sufficient between exposures.
 
+![The current camera timer within a carboard box.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/camera-astro-timer.png)
+
 The double relay operates the camera perfectly. By closing the first relay for auto-focus and then shortly after closing the second for the exposure the exposure will start or stop. A simple RGB LED was added to the circuit to show red during an exposure and green otherwise. During a long exposure at night it might be easy to forget where the sequence is. Though a counter is added to the app display.
 
 A simple web page was created to handle the exposures. The exposure time and number of exposures are adjusted with arrows. The exposure time jumps in useful steps. There is also a cancel button to stop the exposure if the exposure is in progress or about to be. This may be used if the weather closes in. There is also an exposure counter to indicate where the script is within the current run.
