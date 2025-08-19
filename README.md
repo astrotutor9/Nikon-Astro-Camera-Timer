@@ -14,7 +14,7 @@ The Pico would have a wireless access point and serve a webpage that could be pi
 with a mobile. This would be the control for the exposure length and number of exposures.
 The AI was shown this sketch as the basis for the screen control.
 
-![Initial sketch of the mobile screen for the AI to use as a base for the webpage.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/blob/main/Screen.png)
+![Initial sketch of the mobile screen for the AI to use as a base for the webpage.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/blob/main/screen-sketch.png)
 
 ## First Issue
 The remote uses the two switches. A single relay can not be used as the first press
