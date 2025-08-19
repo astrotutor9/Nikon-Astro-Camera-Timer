@@ -14,7 +14,7 @@ The Pico would have a wireless access point and serve a webpage that could be pi
 with a mobile. This would be the control for the exposure length and number of exposures.
 The AI was shown this sketch as the basis for the screen control.
 
-![Initial sketch of the mobile screen for the AI to use as a base for the webpage.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/screen.png)
+![Initial sketch of the mobile screen for the AI to use as a base for the webpage.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/blob/main/Screen.png)
 
 ## First Issue
 The remote uses the two switches. A single relay can not be used as the first press
@@ -31,7 +31,7 @@ whilst the read/write process is in operation might sort this.
 ## Completed
 The LDR was not required as the camera resets to be able to take images almost immediately whilst still saving the previous image. A pause of 100 milliseconds is sufficient between exposures.
 
-![The current camera timer within a carboard box.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/camera-astro-timer.png)
+![The current camera timer within a carboard box.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/blob/main/camera-astro-timer.png)
 
 The double relay operates the camera perfectly. By closing the first relay for auto-focus and then shortly after closing the second for the exposure the exposure will start or stop. A simple RGB LED was added to the circuit to show red during an exposure and green otherwise. During a long exposure at night it might be easy to forget where the sequence is. Though a counter is added to the app display.
 
