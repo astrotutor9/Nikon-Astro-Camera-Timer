@@ -9,6 +9,13 @@ will start the exposure on the first full press and stop on the second. The inte
 is to replace the manual press with a timer controlled by a Raspberry Pi Pico using
 a relay to make the presses that the camera expects.
 
+As an exercise I decided that the coding for this would be done through Vibe coding with ChatGPT.
+The Pico would have a wireless access point and serve a webpage that could be picked up
+with a mobile. This would be the control for the exposure length and number of exposures.
+The AI was shown this sketch as the basis for the screen control.
+
+![Initial sketch of the mobile screen for the AI to use as a base for the webpage.](https://github.com/astrotutor9/Nikon-Astro-Camera-Timer/screen.png)
+
 ## First Issue
 The remote uses the two switches. A single relay can not be used as the first press
 needs to be made before the second. Though the auto-focus is not being used if the
